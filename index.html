@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mr. Rocha’s English Class: Intonation in English</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SortableJS for Drag and Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brandBlue: '#2563eb',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        /* Shiny Blue Border */
+        .shiny-blue {
+            border: 2px solid #3b82f6 !important;
+            box-shadow: 0 0 5px #60a5fa, 0 0 10px #93c5fd !important;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .shiny-blue:focus {
+            box-shadow: 0 0 8px #3b82f6, 0 0 15px #60a5fa !important;
+        }
+
+        /* Form elements */
+        input[type="text"], input[type="date"], textarea {
+            background-color: transparent;
+            color: inherit;
+        }
+        
+        /* Puzzle grid */
+        #puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 2px;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 5/4;
+            margin: 0 auto;
+            background-color: #cbd5e1;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .puzzle-piece {
+            width: 100%;
+            height: 100%;
+            background-image: url('Image3.jpg'); /* Placeholder, uses fallback below */
+            background-size: 500% 400%;
+            cursor: grab;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .puzzle-piece:active { cursor: grabbing; }
+
+        /* Custom Audio Player Styling */
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 999px;
+            outline: none;
+        }
+
+        /* Sortable ghost class */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: #93c5fd;
+        }
+
+        /* Print Styles */
+        @media print {
+            body { background: white; color: black; }
+            .no-print { display: none !important; }
+            .section-container { display: block !important; margin-bottom: 2rem; page-break-inside: avoid; }
+            .shiny-blue { box-shadow: none !important; border: 1px solid #3b82f6 !important; }
+            .print-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-md z-50 no-print">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-brandBlue dark:text-blue-400 truncate">Mr. Rocha’s English Class</h1>
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition" title="Toggle Light/Dark Mode">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block text-yellow-300"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 dark:bg-gray-700 h-2">
+            <div id="progress-bar" class="bg-brandBlue h-2 transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-24 max-w-5xl mx-auto px-4 md:px-8">
+        
+        <!-- Modal for Warnings -->
+        <div id="alert-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] hidden flex items-center justify-center no-print">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-2xl max-w-sm w-full text-center">
+                <h3 class="text-xl font-bold mb-2 text-brandBlue">Notice</h3>
+                <p id="alert-text" class="mb-6 dark:text-gray-300">Message</p>
+                <button onclick="closeModal()" class="px-6 py-2 bg-brandBlue text-white rounded-full hover:bg-blue-700 transition">OK</button>
+            </div>
+        </div>
+
+        <form id="worksheet-form" onsubmit="return false;">
+
+            <!-- SECTION 0: Introduction -->
+            <section id="section-0" class="section-container bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <h2 class="text-3xl font-bold mb-6 text-center text-brandBlue dark:text-blue-400">Intonation in English</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2" for="student-name"><i class="fas fa-user mr-2"></i>Name</label>
+                        <input type="text" id="student-name" class="w-full p-3 rounded-xl shiny-blue bg-white dark:bg-gray-700" placeholder="Type your full name">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2" for="student-date"><i class="fas fa-calendar-alt mr-2"></i>Date</label>
+                        <input type="date" id="student-date" class="w-full p-3 rounded-xl shiny-blue bg-white dark:bg-gray-700">
+                    </div>
+                </div>
+
+                <div class="mb-6 rounded-xl overflow-hidden shadow-md">
+                    <!-- Image 1 -->
+                    <img src="Image1.jpg" onerror="this.src='https://placehold.co/1000x400/2563eb/ffffff?text=Intonation+in+English+(Image1)'" alt="Intro Image" class="w-full h-auto object-cover max-h-96">
+                </div>
+                <p class="text-lg text-center font-medium">Welcome to the interactive worksheet! Complete each activity and check your answers before moving forward.</p>
+            </section>
+
+            <!-- SECTION 1: Activity 1 -->
+            <section id="section-1" class="section-container hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-brandBlue">Activity 1: Watch & Tell</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"><i class="fas fa-video mr-1"></i>Video</span>
+                </div>
+                <p class="mb-4 text-lg">Watch the video. Tell Mr. Rocha about the video.</p>
+                <div class="mb-6 rounded-xl overflow-hidden bg-black flex justify-center">
+                    <video src="Video1.mp4" controls class="w-full max-h-[500px]" onerror="this.outerHTML='<div class=\'w-full h-64 bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-col\'><i class=\'fas fa-film text-4xl text-gray-400 mb-2\'></i><p>Video1.mp4 Placeholder</p></div>'"></video>
+                </div>
+                <textarea id="act1-text" class="w-full p-4 rounded-xl shiny-blue bg-gray-50 dark:bg-gray-700 h-32 resize-none" placeholder="Type your summary here..."></textarea>
+                
+                <div class="mt-6 flex justify-end no-print">
+                    <button type="button" onclick="checkAnswer(1)" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1"><i class="fas fa-check-circle mr-2"></i>Check Answer</button>
+                </div>
+                <div id="feedback-1" class="mt-4 hidden p-4 rounded-lg bg-gray-100 dark:bg-gray-700"></div>
+            </section>
+
+            <!-- SECTION 2: Activity 2 -->
+            <section id="section-2" class="section-container hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-brandBlue">Activity 2: Read and Retell</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"><i class="fas fa-book mr-1"></i>Reading</span>
+                </div>
+                <p class="mb-4 text-lg">Look at the story image. Tell Mr. Rocha about the story.</p>
+                <div class="mb-6 rounded-xl overflow-hidden shadow-md">
+                    <img src="Image2.jpg" onerror="this.src='https://placehold.co/1000x500/10b981/ffffff?text=Story+(Image2)'" alt="Story Image" class="w-full h-auto object-cover">
+                </div>
+                <textarea id="act2-text" class="w-full p-4 rounded-xl shiny-blue bg-gray-50 dark:bg-gray-700 h-32 resize-none" placeholder="Retell the story here..."></textarea>
+                
+                <div class="mt-6 flex justify-end no-print">
+                    <button type="button" onclick="checkAnswer(2)" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1"><i class="fas fa-check-circle mr-2"></i>Check Answer</button>
+                </div>
+                <div id="feedback-2" class="mt-4 hidden p-4 rounded-lg bg-gray-100 dark:bg-gray-700"></div>
+            </section>
+
+            <!-- SECTION 3: Activity 3 -->
+            <section id="section-3" class="section-container hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-brandBlue">Activity 3: Irregular Verbs</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"><i class="fas fa-pen mr-1"></i>Grammar</span>
+                </div>
+                <p class="mb-6 text-lg">Write the past and past participle forms of these irregular verbs.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-brandBlue text-white">
+                                <th class="p-3 rounded-tl-lg">Present</th>
+                                <th class="p-3">Past</th>
+                                <th class="p-3 rounded-tr-lg">Past Participle</th>
+                            </tr>
+                        </thead>
+                        <tbody id="verb-table-body" class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 flex justify-end no-print">
+                    <button type="button" onclick="checkAnswer(3)" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1"><i class="fas fa-check-circle mr-2"></i>Check Answer</button>
+                </div>
+                <div id="feedback-3" class="mt-4 hidden p-4 rounded-lg bg-gray-100 dark:bg-gray-700"></div>
+            </section>
+
+            <!-- SECTION 4: Activity 4 -->
+            <section id="section-4" class="section-container hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-brandBlue">Activity 4: Past Tense & Dictation</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"><i class="fas fa-headphones mr-1"></i>Writing & Listening</span>
+                </div>
+
+                <div class="mb-10">
+                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-pencil-alt text-brandBlue mr-2"></i>Part A: Rewrite Sentences</h3>
+                    <p class="mb-4">Rewrite these complete sentences in the past tense. Check for capitalization and punctuation.</p>
+                    <div id="rewrite-container" class="space-y-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-8 mb-6">
+                    <h3 class="text-xl font-bold mb-4"><i class="fas fa-volume-up text-brandBlue mr-2"></i>Part B: Listen and Write</h3>
+                    <p class="mb-4">Listen to the audios and dictate exactly what you hear.</p>
+                    <div id="dictation-container" class="space-y-6">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end no-print">
+                    <button type="button" onclick="checkAnswer(4)" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1"><i class="fas fa-check-circle mr-2"></i>Check Answers</button>
+                </div>
+                <div id="feedback-4" class="mt-4 hidden p-4 rounded-lg bg-gray-100 dark:bg-gray-700"></div>
+            </section>
+
+            <!-- SECTION 5: Activity 5 -->
+            <section id="section-5" class="section-container hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-brandBlue">Activity 5: Form the Image</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"><i class="fas fa-puzzle-piece mr-1"></i>Puzzle</span>
+                </div>
+                <p class="mb-4 text-lg">Move the pieces of the puzzle to form the target image. Then write 5 things you see in the image.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="flex flex-col items-center">
+                        <div class="flex justify-between w-full max-w-[600px] mb-2">
+                            <span class="font-bold">Target Image</span>
+                            <span id="puzzle-timer" class="font-bold text-red-500"><i class="fas fa-stopwatch mr-1"></i>00:00</span>
+                        </div>
+                        <img src="Image3.jpg" onerror="this.src='https://placehold.co/500x400/8b5cf6/ffffff?text=Image3'" class="w-full max-w-[600px] rounded-lg shadow-md mb-4" id="target-image-puzzle">
+                        <div class="flex gap-4 no-print">
+                            <button type="button" onclick="startPuzzle()" id="btn-start-puzzle" class="px-4 py-2 bg-brandBlue text-white rounded-full hover:bg-blue-700 transition">Start Puzzle</button>
+                            <button type="button" onclick="resetPuzzle()" id="btn-reset-puzzle" class="px-4 py-2 bg-gray-500 text-white rounded-full hover:bg-gray-600 transition hidden">Do Again</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center relative">
+                        <div id="puzzle-overlay" class="absolute inset-0 bg-white/80 dark:bg-gray-800/80 z-10 flex items-center justify-center rounded-lg">
+                            <p class="text-lg font-bold">Click Start to Play</p>
+                        </div>
+                        <div id="puzzle-grid">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="font-bold mb-2">Write 5 things you see in the image:</h3>
+                    <textarea id="act5-text" class="w-full p-4 rounded-xl shiny-blue bg-gray-50 dark:bg-gray-700 h-32 resize-none" placeholder="1. ...&#10;2. ...&#10;3. ...&#10;4. ...&#10;5. ..."></textarea>
+                </div>
+
+                <div class="mt-6 flex justify-end no-print">
+                    <button type="button" onclick="checkAnswer(5)" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1"><i class="fas fa-check-circle mr-2"></i>Check Answer</button>
+                </div>
+                <div id="feedback-5" class="mt-4 hidden p-4 rounded-lg bg-gray-100 dark:bg-gray-700"></div>
+            </section>
+
+            <!-- SECTION 6: Activity 6 -->
+            <section id="section-6" class="section-container hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-brandBlue">Activity 6: Listen and Read</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"><i class="fas fa-book-open mr-1"></i>Comprehension</span>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <img src="Image3.jpg" onerror="this.src='https://placehold.co/600x400/f59e0b/ffffff?text=Day+of+the+Dead+(Image3)'" class="w-full rounded-xl shadow-md mb-4">
+                        <audio src="Audio7.mp3" controls class="mb-4" title="Audio7"></audio>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-6 rounded-xl shadow-inner h-96 overflow-y-auto custom-scrollbar">
+                        <h3 class="font-bold text-xl mb-3">Diego's Weekend</h3>
+                        <p class="mb-3">My name is Diego, and I am sixteen years old. I moved back to Mexico with my parents and my little sister. Last week, I had four days off school. It was a special weekend because we celebrated the Day of the Dead.</p>
+                        <p class="mb-3">On the first day, I got up late and ate eggs for breakfast. Then I went to the market with my mother. We bought orange flowers, fruit, and sweet bread called pan de muerto. At home, I helped clean the living room. My sister made colorful paper decorations.</p>
+                        <p class="mb-3">On the second day, we prepared our family altar. We put a photo of my grandfather next to his favorite food. My grandmother told us stories about him. He loved music and often played the guitar. That evening, we ate together and talked about happy family memories.</p>
+                        <p class="mb-3">On the third day, we visited the cemetery for the Day of the Dead. We took flowers and cleaned my grandfather's grave. I felt quiet, but I enjoyed listening to my grandmother. Later, I met my cousins. We walked around the town square and saw beautiful decorations. I took photographs with my phone.</p>
+                        <p>On the fourth day, I stayed home. I did my homework, washed my shoes, and played a video game. Before dinner, I packed my school bag. I went to bed early because I felt tired. The weekend gave me time to rest and remember my grandfather.</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <h3 class="text-xl font-bold mb-6">Multiple-Choice Questions</h3>
+                    <div id="mcq-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end no-print">
+                    <button type="button" onclick="checkAnswer(6)" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1"><i class="fas fa-check-circle mr-2"></i>Check Answers</button>
+                </div>
+                <div id="feedback-6" class="mt-4 hidden p-4 rounded-lg bg-gray-100 dark:bg-gray-700"></div>
+            </section>
+
+            <!-- SECTION 7: Activity 7 -->
+            <section id="section-7" class="section-container hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-brandBlue">Activity 7: Sentence Building</h2>
+                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"><i class="fas fa-layer-group mr-1"></i>Syntax</span>
+                </div>
+                <p class="mb-6 text-lg">Drag and drop the words to form complex sentences in the past tense. Click the audio button to hear the correct sentence.</p>
+                
+                <div id="unscramble-container" class="space-y-8">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="mt-6 flex justify-end no-print">
+                    <button type="button" onclick="checkAnswer(7)" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full shadow-lg transition transform hover:-translate-y-1"><i class="fas fa-check-circle mr-2"></i>Check Answers</button>
+                </div>
+                <div id="feedback-7" class="mt-4 hidden p-4 rounded-lg bg-gray-100 dark:bg-gray-700"></div>
+            </section>
+
+            <!-- SECTION 8: Results -->
+            <section id="section-8" class="section-container hidden bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-10 mt-6 print-break">
+                <div class="text-center mb-10">
+                    <h2 class="text-4xl font-bold text-brandBlue mb-2"><i class="fas fa-award mr-3 text-yellow-400"></i>Overall Results</h2>
+                    <p class="text-xl" id="results-name-date">Student Name | Date</p>
+                    <div class="text-6xl font-black text-green-500 mt-6" id="overall-score-display">0%</div>
+                    <p class="text-lg mt-2 text-gray-500" id="overall-feedback">Great effort!</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-inner">
+                        <h3 class="text-xl font-bold mb-4 text-center">Score Breakdown</h3>
+                        <canvas id="barChart"></canvas>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl shadow-inner">
+                        <h3 class="text-xl font-bold mb-4 text-center">Completion Status</h3>
+                        <div class="flex justify-center h-full max-h-64">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 dark:bg-gray-700 p-6 rounded-xl shadow-md border-l-4 border-brandBlue mb-8">
+                    <h3 class="text-2xl font-bold mb-4"><i class="fas fa-lightbulb mr-2 text-yellow-500"></i>Recommendations</h3>
+                    <ul id="recommendations-list" class="space-y-3 list-disc list-inside text-lg">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+
+                <div class="flex justify-center no-print">
+                    <button type="button" onclick="window.print()" class="px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-full shadow-xl transition transform hover:-translate-y-1 text-lg"><i class="fas fa-print mr-2"></i>Print Results</button>
+                </div>
+            </section>
+
+            <!-- Navigation Buttons -->
+            <div id="nav-container" class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 z-40 no-print transition-colors">
+                <div class="max-w-5xl mx-auto flex justify-between items-center gap-4">
+                    <button type="button" id="btn-back" onclick="navigate(-1)" class="px-6 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-500 transition font-bold disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-arrow-left mr-2"></i>Back
+                    </button>
+                    <span id="step-indicator" class="font-bold text-gray-500 dark:text-gray-400">Intro</span>
+                    <button type="button" id="btn-next" onclick="navigate(1)" class="px-6 py-2 bg-brandBlue text-white rounded-full hover:bg-blue-700 transition font-bold shadow-lg transform hover:-translate-y-0.5">
+                        Next<i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                    <button type="button" id="btn-submit" onclick="submitWorksheet()" class="hidden px-8 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 rounded-full font-extrabold shadow-lg transform hover:-translate-y-1">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Worksheet
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </main>
+
+    <script>
+        // --- DATA ---
+        const verbs = [
+            {b: "go", p: "went", pp: "gone"}, {b: "see", p: "saw", pp: "seen"}, {b: "take", p: "took", pp: "taken"},
+            {b: "eat", p: "ate", pp: "eaten"}, {b: "read", p: "read", pp: "read"}, {b: "write", p: "wrote", pp: "written"},
+            {b: "put", p: "put", pp: "put"}, {b: "have", p: "had", pp: "had"}, {b: "make", p: "made", pp: "made"},
+            {b: "do", p: "did", pp: "done"}, {b: "is", p: "was", pp: "been"}, {b: "are", p: "were", pp: "been"},
+            {b: "come", p: "came", pp: "come"}, {b: "run", p: "ran", pp: "run"}, {b: "drive", p: "drove", pp: "driven"},
+            {b: "drink", p: "drank", pp: "drunk"}, {b: "find", p: "found", pp: "found"}, {b: "forget", p: "forgot", pp: "forgotten"},
+            {b: "fly", p: "flew", pp: "flown"}, {b: "give", p: "gave", pp: "given"}, {b: "hear", p: "heard", pp: "heard"},
+            {b: "win", p: "won", pp: "won"}, {b: "think", p: "thought", pp: "thought"}, {b: "buy", p: "bought", pp: "bought"},
+            {b: "spend", p: "spent", pp: "spent"}, {b: "sleep", p: "slept", pp: "slept"}, {b: "speak", p: "spoke", pp: "spoken"},
+            {b: "sit", p: "sat", pp: "sat"}
+        ];
+
+        const act4Rewrites = [
+            {p: "1. I see the beautiful mountains.", t: "I saw the beautiful mountains."},
+            {p: "2. She takes her dog for a walk.", t: "She took her dog for a walk."},
+            {p: "3. We eat dinner at seven.", t: "We ate dinner at seven."},
+            {p: "4. He reads a fascinating book.", t: "He read a fascinating book."},
+            {p: "5. They write letters to their friends.", t: "They wrote letters to their friends."},
+            {p: "6. I put the keys on the table.", t: "I put the keys on the table."},
+            {p: "7. She has a big smile.", t: "She had a big smile."},
+            {p: "8. We make a delicious cake.", t: "We made a delicious cake."},
+            {p: "9. He does his homework quickly.", t: "He did his homework quickly."},
+            {p: "10. The teacher is very helpful.", t: "The teacher was very helpful."},
+            {p: "11. The students are ready for the test.", t: "The students were ready for the test."},
+            {p: "12. I come to school early.", t: "I came to school early."}
+        ];
+
+        const act4Dictation = [
+            "After I ate breakfast, I went to school.",
+            "Although she forgot her notebook, she wrote the answers on a sheet of paper.",
+            "When you saw the assignment, did you know the answers?",
+            "What did he buy when he went to the school supply store?",
+            "Did they find the ruler that you put on the desk?",
+            "Because I left my scissors at home, my friend gave me a spare pair."
+        ];
+
+        const act6MCQs = [
+            {q: "1. How many days off school did Diego have?", opts: ["Two days", "Five days", "Four days", "Three days"], a: 2},
+            {q: "2. Who went to the market with Diego?", opts: ["His mother", "His grandmother", "His sister", "His father"], a: 0},
+            {q: "3. What did Diego's grandfather often play?", opts: ["The piano", "The drums", "The violin", "The guitar"], a: 3},
+            {q: "4. Where did the family go on the third day?", opts: ["To the beach", "To the cemetery", "To the school", "To the market"], a: 1},
+            {q: "5. What did Diego use to take photographs?", opts: ["His phone", "His sister's camera", "His tablet", "His father's camera"], a: 0},
+            {q: "6. Why did Diego go to bed early on the fourth day?", opts: ["He felt sick.", "He had no homework.", "He felt tired.", "He wanted to visit the market."], a: 2}
+        ];
+
+        const act7Sentences = [
+            "I went to the beach because the weather was sunny.",
+            "Although it rained heavily, we visited the famous museum.",
+            "She bought a new dress when she went shopping.",
+            "After we finished dinner, we watched a great movie.",
+            "I took many pictures while we walked around town.",
+            "He forgot his camera, so he used his mobile phone.",
+            "Because we were tired, we slept early on Sunday.",
+            "They ate delicious seafood before they drove back home."
+        ];
+
+        // --- STATE ---
+        let currentSection = 0;
+        const totalSections = 8; // 0 (Intro) + 7 Activities + 8 (Results)
+        const sectionNames = ["Intro", "Act 1", "Act 2", "Act 3", "Act 4", "Act 5", "Act 6", "Act 7", "Results"];
+        let sectionChecked = new Array(8).fill(false); // 0 to 7
+        let sectionScores = { s1:0, s2:0, s3:0, s4:0, s5:0, s6:0, s7:0 };
+        let sectionMax = { s1:1, s2:1, s3:56, s4:18, s5:2, s6:6, s7:8 }; // Weighted
+        
+        let puzzleTimerInterval;
+        let puzzleSeconds = 0;
+        let puzzlePlaying = false;
+        let sortables = [];
+
+        // --- INITIALIZATION ---
+        function init() {
+            // Theme setup
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+
+            // Populate Act 3
+            const tbody = document.getElementById('verb-table-body');
+            verbs.forEach((v, i) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-200 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-600 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold">${v.b}</td>
+                    <td class="p-2"><input type="text" id="v-past-${i}" class="w-full p-2 rounded shiny-blue bg-white dark:bg-gray-800"></td>
+                    <td class="p-2"><input type="text" id="v-pp-${i}" class="w-full p-2 rounded shiny-blue bg-white dark:bg-gray-800"></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Populate Act 4A
+            const rewriteCont = document.getElementById('rewrite-container');
+            act4Rewrites.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = "bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600";
+                div.innerHTML = `
+                    <p class="font-semibold text-gray-700 dark:text-gray-300 mb-2">${item.p}</p>
+                    <input type="text" id="rewrite-${i}" class="w-full p-2 rounded shiny-blue bg-gray-50 dark:bg-gray-800" placeholder="Rewrite in past tense...">
+                    <div id="rewrite-fb-${i}" class="text-sm mt-1 font-semibold hidden"></div>
+                `;
+                rewriteCont.appendChild(div);
+            });
+
+            // Populate Act 4B
+            const dictCont = document.getElementById('dictation-container');
+            act4Dictation.forEach((text, i) => {
+                const div = document.createElement('div');
+                div.className = "bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600";
+                div.innerHTML = `
+                    <div class="flex items-center gap-4 mb-2">
+                        <span class="font-bold text-lg">${i+1}.</span>
+                        <audio src="Audio${i+1}.mp3" controls class="flex-grow"></audio>
+                    </div>
+                    <input type="text" id="dict-${i}" class="w-full p-2 rounded shiny-blue bg-gray-50 dark:bg-gray-800 mt-2" placeholder="Type exactly what you hear...">
+                    <div id="dict-fb-${i}" class="text-sm mt-1 font-semibold hidden"></div>
+                `;
+                dictCont.appendChild(div);
+            });
+
+            // Populate Act 5 Puzzle Grid (5 cols, 4 rows = 20 pieces)
+            const pGrid = document.getElementById('puzzle-grid');
+            let pieces = [];
+            for(let i=0; i<20; i++){
+                pieces.push(i);
+            }
+            // Shuffle
+            pieces.sort(() => Math.random() - 0.5);
+            pieces.forEach((pieceIdx) => {
+                const col = pieceIdx % 5;
+                const row = Math.floor(pieceIdx / 5);
+                const div = document.createElement('div');
+                div.className = "puzzle-piece";
+                div.dataset.id = pieceIdx;
+                div.style.backgroundPosition = `${col * 25}% ${row * 33.333}%`;
+                pGrid.appendChild(div);
+            });
+            // Initialize Sortable for puzzle
+            Sortable.create(pGrid, {
+                animation: 150,
+                disabled: true, // enabled on start
+                ghostClass: 'sortable-ghost',
+            });
+
+            // Populate Act 6 MCQ
+            const mcqCont = document.getElementById('mcq-container');
+            act6MCQs.forEach((qObj, i) => {
+                const div = document.createElement('div');
+                div.className = "bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600";
+                let optsHtml = qObj.opts.map((opt, j) => `
+                    <label class="flex items-center p-2 rounded hover:bg-blue-50 dark:hover:bg-gray-600 cursor-pointer transition">
+                        <input type="radio" name="q${i}" value="${j}" class="mr-3 w-4 h-4 text-brandBlue">
+                        <span>${String.fromCharCode(65+j)}. ${opt}</span>
+                    </label>
+                `).join('');
+                div.innerHTML = `
+                    <p class="font-bold mb-3">${qObj.q}</p>
+                    <div class="space-y-1">${optsHtml}</div>
+                    <div id="mcq-fb-${i}" class="text-sm mt-2 font-semibold hidden"></div>
+                `;
+                mcqCont.appendChild(div);
+            });
+
+            // Populate Act 7 Unscramble
+            const unscrCont = document.getElementById('unscramble-container');
+            act7Sentences.forEach((sentence, i) => {
+                let words = sentence.split(' ');
+                // keep punctuation attached to words for A2 level, or split. Let's keep simple split by space.
+                let shuffled = [...words].sort(() => Math.random() - 0.5);
+                
+                const div = document.createElement('div');
+                div.className = "bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-600";
+                
+                let wordsHtml = shuffled.map(w => `<div class="cursor-grab p-2 px-4 bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 rounded shadow-sm border border-blue-200 dark:border-blue-700 inline-block m-1 hover:shadow-md transition active:cursor-grabbing">${w}</div>`).join('');
+                
+                div.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="font-bold">Sentence ${i+1}</span>
+                        <button type="button" onclick="speakText('${sentence.replace(/'/g, "\\'")}')" class="w-10 h-10 rounded-full bg-brandBlue text-white hover:bg-blue-700 transition flex items-center justify-center" title="Listen"><i class="fas fa-volume-up"></i></button>
+                    </div>
+                    <div id="sortable-sentence-${i}" class="min-h-[60px] p-2 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-wrap content-start">
+                        ${wordsHtml}
+                    </div>
+                    <div id="unscr-fb-${i}" class="text-sm mt-2 font-semibold hidden"></div>
+                `;
+                unscrCont.appendChild(div);
+            });
+
+            // Init Sortables for sentences
+            for(let i=0; i<act7Sentences.length; i++){
+                sortables.push(Sortable.create(document.getElementById(`sortable-sentence-${i}`), {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost'
+                }));
+            }
+
+            updateNav();
+        }
+
+        // --- NAVIGATION ---
+        function navigate(dir) {
+            if (dir === 1 && currentSection === 0) {
+                // Validate name and date
+                const name = document.getElementById('student-name').value.trim();
+                const date = document.getElementById('student-date').value;
+                if (!name || !date) {
+                    showAlert("Please enter your name and select a date before continuing.");
+                    return;
+                }
+            }
+            
+            document.getElementById(`section-${currentSection}`).classList.add('hidden');
+            currentSection += dir;
+            
+            // Constrain
+            if (currentSection < 0) currentSection = 0;
+            if (currentSection > totalSections) currentSection = totalSections;
+
+            document.getElementById(`section-${currentSection}`).classList.remove('hidden');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            updateNav();
+        }
+
+        function updateNav() {
+            document.getElementById('btn-back').disabled = (currentSection === 0);
+            
+            if (currentSection === totalSections) { // Results view
+                document.getElementById('nav-container').classList.add('hidden');
+            } else {
+                document.getElementById('nav-container').classList.remove('hidden');
+            }
+
+            document.getElementById('step-indicator').innerText = sectionNames[currentSection] + ` of 7`;
+
+            if (currentSection === totalSections - 1) { // Act 7
+                document.getElementById('btn-next').classList.add('hidden');
+                document.getElementById('btn-submit').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-next').classList.remove('hidden');
+                document.getElementById('btn-submit').classList.add('hidden');
+            }
+
+            // Progress bar
+            const prog = (currentSection / (totalSections-1)) * 100;
+            document.getElementById('progress-bar').style.width = `${Math.min(prog, 100)}%`;
+        }
+
+        function showAlert(msg) {
+            document.getElementById('alert-text').innerText = msg;
+            document.getElementById('alert-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('alert-modal').classList.add('hidden');
+        }
+
+        // --- UTILS ---
+        function cleanString(str) {
+            return str.trim().toLowerCase().replace(/\s+/g, ' ');
+        }
+        function exactClean(str) {
+            return str.trim().replace(/\s+/g, ' ');
+        }
+
+        function disableContainer(containerId) {
+            const inputs = document.getElementById(containerId).querySelectorAll('input, textarea, button, select');
+            inputs.forEach(el => {
+                if(el.type !== 'button' || el.innerText !== 'Do Again') {
+                    el.disabled = true;
+                    el.classList.add('opacity-70', 'cursor-not-allowed');
+                }
+            });
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance();
+                msg.text = text;
+                msg.lang = 'en-US';
+                window.speechSynthesis.cancel(); // stop current
+                window.speechSynthesis.speak(msg);
+            } else {
+                showAlert("Text-to-speech is not supported in this browser.");
+            }
+        }
+
+        // --- CHECKING LOGIC ---
+        function checkAnswer(actNum) {
+            if (sectionChecked[actNum]) return;
+            
+            let fb = document.getElementById(`feedback-${actNum}`);
+            fb.classList.remove('hidden');
+            let score = 0;
+
+            if (actNum === 1 || actNum === 2) {
+                // Open ended
+                const text = document.getElementById(`act${actNum}-text`).value.trim();
+                if(text.length > 10) {
+                    score = 1;
+                    fb.innerHTML = `<span class="text-green-600 dark:text-green-400"><i class="fas fa-check"></i> Great job sharing your thoughts!</span>`;
+                } else {
+                    fb.innerHTML = `<span class="text-orange-500"><i class="fas fa-exclamation-triangle"></i> Try to write a bit more next time.</span>`;
+                }
+                document.getElementById(`act${actNum}-text`).disabled = true;
+                sectionScores[`s${actNum}`] = score;
+            }
+            else if (actNum === 3) {
+                for (let i = 0; i < verbs.length; i++) {
+                    const pInput = document.getElementById(`v-past-${i}`);
+                    const ppInput = document.getElementById(`v-pp-${i}`);
+                    
+                    const pVal = cleanString(pInput.value);
+                    const ppVal = cleanString(ppInput.value);
+                    
+                    if (pVal === verbs[i].p) {
+                        score++; pInput.classList.add('bg-green-100', 'border-green-500', 'text-green-900');
+                    } else {
+                        pInput.classList.add('bg-red-100', 'border-red-500', 'text-red-900');
+                        pInput.value = pVal ? `${pInput.value} (X) -> ${verbs[i].p}` : verbs[i].p;
+                    }
+                    pInput.disabled = true;
+
+                    if (ppVal === verbs[i].pp) {
+                        score++; ppInput.classList.add('bg-green-100', 'border-green-500', 'text-green-900');
+                    } else {
+                        ppInput.classList.add('bg-red-100', 'border-red-500', 'text-red-900');
+                        ppInput.value = ppVal ? `${ppInput.value} (X) -> ${verbs[i].pp}` : verbs[i].pp;
+                    }
+                    ppInput.disabled = true;
+                }
+                fb.innerHTML = `You got <strong>${score} / 56</strong> correct!`;
+                sectionScores.s3 = score;
+            }
+            else if (actNum === 4) {
+                // Part A
+                for (let i = 0; i < act4Rewrites.length; i++) {
+                    const input = document.getElementById(`rewrite-${i}`);
+                    const val = exactClean(input.value);
+                    const target = act4Rewrites[i].t;
+                    const fDiv = document.getElementById(`rewrite-fb-${i}`);
+                    fDiv.classList.remove('hidden');
+                    
+                    if (val === target) {
+                        score++; input.classList.add('border-green-500', 'bg-green-50');
+                        fDiv.innerHTML = `<span class="text-green-600"><i class="fas fa-check"></i> Correct</span>`;
+                    } else {
+                        input.classList.add('border-red-500', 'bg-red-50');
+                        fDiv.innerHTML = `<span class="text-red-600"><i class="fas fa-times"></i> Target: ${target}</span>`;
+                    }
+                    input.disabled = true;
+                }
+                // Part B
+                for (let i = 0; i < act4Dictation.length; i++) {
+                    const input = document.getElementById(`dict-${i}`);
+                    const val = exactClean(input.value);
+                    const target = act4Dictation[i];
+                    const fDiv = document.getElementById(`dict-fb-${i}`);
+                    fDiv.classList.remove('hidden');
+
+                    if (val === target) {
+                        score++; input.classList.add('border-green-500', 'bg-green-50');
+                        fDiv.innerHTML = `<span class="text-green-600"><i class="fas fa-check"></i> Correct</span>`;
+                    } else {
+                        input.classList.add('border-red-500', 'bg-red-50');
+                        fDiv.innerHTML = `<span class="text-red-600"><i class="fas fa-times"></i> Target: ${target}</span>`;
+                    }
+                    input.disabled = true;
+                }
+                fb.innerHTML = `You got <strong>${score} / 18</strong> correct in this section!`;
+                sectionScores.s4 = score;
+            }
+            else if (actNum === 5) {
+                clearInterval(puzzleTimerInterval);
+                document.getElementById('puzzle-grid').classList.add('opacity-80', 'pointer-events-none');
+                
+                // Check puzzle (1 pt if fully correct)
+                let pScore = 1;
+                const children = document.getElementById('puzzle-grid').children;
+                for(let i=0; i<20; i++) {
+                    if(parseInt(children[i].dataset.id) !== i) { pScore = 0; break; }
+                }
+
+                // Check text (1 pt if reasonable length)
+                const text = document.getElementById(`act5-text`).value.trim();
+                let tScore = text.length > 20 ? 1 : 0;
+                document.getElementById(`act5-text`).disabled = true;
+                document.getElementById('btn-start-puzzle').disabled = true;
+                document.getElementById('btn-reset-puzzle').disabled = true;
+
+                score = pScore + tScore;
+                fb.innerHTML = `Puzzle completion: ${pScore ? 'Perfect!' : 'Not quite right.'} | Description: ${tScore ? 'Good' : 'Too short'}. Score: ${score}/2`;
+                sectionScores.s5 = score;
+            }
+            else if (actNum === 6) {
+                for (let i = 0; i < act6MCQs.length; i++) {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    const fDiv = document.getElementById(`mcq-fb-${i}`);
+                    fDiv.classList.remove('hidden');
+                    
+                    const radios = document.getElementsByName(`q${i}`);
+                    radios.forEach(r => r.disabled = true);
+
+                    if (selected && parseInt(selected.value) === act6MCQs[i].a) {
+                        score++;
+                        fDiv.innerHTML = `<span class="text-green-600"><i class="fas fa-check"></i> Correct</span>`;
+                    } else {
+                        fDiv.innerHTML = `<span class="text-red-600"><i class="fas fa-times"></i> Correct Answer: ${String.fromCharCode(65+act6MCQs[i].a)}. ${act6MCQs[i].opts[act6MCQs[i].a]}</span>`;
+                    }
+                }
+                fb.innerHTML = `You scored <strong>${score} / 6</strong>.`;
+                sectionScores.s6 = score;
+            }
+            else if (actNum === 7) {
+                for(let i=0; i<act7Sentences.length; i++) {
+                    // lock sortable
+                    sortables[i].option("disabled", true);
+                    const container = document.getElementById(`sortable-sentence-${i}`);
+                    container.classList.add('bg-gray-100');
+                    
+                    // get order
+                    const currentOrder = Array.from(container.children).map(el => el.innerText).join(' ');
+                    const target = act7Sentences[i];
+                    const fDiv = document.getElementById(`unscr-fb-${i}`);
+                    fDiv.classList.remove('hidden');
+
+                    if(exactClean(currentOrder) === target) {
+                        score++;
+                        fDiv.innerHTML = `<span class="text-green-600"><i class="fas fa-check"></i> Correct</span>`;
+                        container.classList.add('border-green-500');
+                    } else {
+                        fDiv.innerHTML = `<span class="text-red-600"><i class="fas fa-times"></i> Target: ${target}</span>`;
+                        container.classList.add('border-red-500');
+                    }
+                }
+                fb.innerHTML = `You scored <strong>${score} / 8</strong>.`;
+                sectionScores.s7 = score;
+            }
+
+            sectionChecked[actNum] = true;
+            event.target.classList.replace('bg-green-500', 'bg-gray-400');
+            event.target.classList.remove('hover:bg-green-600');
+            event.target.disabled = true;
+            event.target.innerHTML = `<i class="fas fa-lock mr-2"></i>Checked`;
+        }
+
+        // --- PUZZLE LOGIC ---
+        function startPuzzle() {
+            if(puzzlePlaying) return;
+            document.getElementById('puzzle-overlay').classList.add('hidden');
+            Sortable.get(document.getElementById('puzzle-grid')).option("disabled", false);
+            document.getElementById('btn-start-puzzle').classList.add('hidden');
+            document.getElementById('btn-reset-puzzle').classList.remove('hidden');
+            puzzlePlaying = true;
+            puzzleSeconds = 0;
+            updateTimerDisplay();
+            puzzleTimerInterval = setInterval(() => {
+                puzzleSeconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(puzzleSeconds / 60).toString().padStart(2, '0');
+            const s = (puzzleSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('puzzle-timer').innerHTML = `<i class="fas fa-stopwatch mr-1"></i>${m}:${s}`;
+        }
+
+        function resetPuzzle() {
+            const pGrid = document.getElementById('puzzle-grid');
+            let items = Array.from(pGrid.children);
+            items.sort(() => Math.random() - 0.5);
+            items.forEach(item => pGrid.appendChild(item));
+            puzzleSeconds = 0;
+            updateTimerDisplay();
+        }
+
+        // --- SUBMIT & RESULTS ---
+        function submitWorksheet() {
+            // Warn if un-checked sections
+            let uncheckCount = 0;
+            for(let i=1; i<=7; i++) {
+                if(!sectionChecked[i]) uncheckCount++;
+            }
+            if(uncheckCount > 0) {
+                if(!confirm(`You have ${uncheckCount} activities unchecked. Unchecked activities will score 0. Are you sure you want to submit?`)) {
+                    return;
+                }
+            }
+
+            // Move to results
+            document.getElementById(`section-${currentSection}`).classList.add('hidden');
+            currentSection = 8;
+            document.getElementById(`section-${currentSection}`).classList.remove('hidden');
+            updateNav();
+
+            // Setup Header Info
+            const name = document.getElementById('student-name').value;
+            const date = document.getElementById('student-date').value;
+            document.getElementById('results-name-date').innerText = `Student: ${name} | Date: ${date}`;
+
+            // Calc percentages
+            const p3 = Math.round((sectionScores.s3 / sectionMax.s3) * 100) || 0;
+            const p4 = Math.round((sectionScores.s4 / sectionMax.s4) * 100) || 0;
+            const p5 = Math.round((sectionScores.s5 / sectionMax.s5) * 100) || 0;
+            const p6 = Math.round((sectionScores.s6 / sectionMax.s6) * 100) || 0;
+            const p7 = Math.round((sectionScores.s7 / sectionMax.s7) * 100) || 0;
+
+            const totalScore = sectionScores.s1 + sectionScores.s2 + sectionScores.s3 + sectionScores.s4 + sectionScores.s5 + sectionScores.s6 + sectionScores.s7;
+            const totalMax = 1 + 1 + 56 + 18 + 2 + 6 + 8;
+            const overallP = Math.round((totalScore / totalMax) * 100);
+
+            const displayScore = document.getElementById('overall-score-display');
+            displayScore.innerText = `${overallP}%`;
+            if (overallP >= 90) displayScore.className = "text-6xl font-black text-green-500 mt-6";
+            else if (overallP >= 70) displayScore.className = "text-6xl font-black text-yellow-500 mt-6";
+            else displayScore.className = "text-6xl font-black text-red-500 mt-6";
+
+            let feedback = "Needs improvement. Keep practicing!";
+            if(overallP >= 90) feedback = "Excellent work! You have mastered these concepts.";
+            else if (overallP >= 75) feedback = "Good job! A solid understanding of the material.";
+            document.getElementById('overall-feedback').innerText = feedback;
+
+            // Generate Recommendations
+            let recs = [];
+            if(p3 < 80) { recs.push("Review irregular verb forms in the simple past tense."); recs.push("Practice spelling the past participle forms of irregular verbs."); }
+            if(p4 < 80) { recs.push("Pay close attention to punctuation and capitalization in sentences."); recs.push("Listen repeatedly to spoken English to improve dictation skills."); }
+            if(p6 < 80) { recs.push("Enhance reading comprehension by identifying key details in texts."); recs.push("Practice answering multiple-choice questions by eliminating wrong options."); }
+            if(p7 < 80) { recs.push("Review sentence structure and word order for complex sentences."); }
+            if(p5 < 100 || sectionScores.s1 == 0 || sectionScores.s2 == 0) { recs.push("Describe images and summarize videos out loud to improve vocabulary and fluency."); }
+            
+            // Fill with general if doing well
+            if(recs.length < 8) recs.push("Read short English stories daily to expand your vocabulary.");
+            if(recs.length < 8) recs.push("Watch English videos with subtitles to improve intonation.");
+            if(recs.length < 8) recs.push("Practice speaking with a partner using past tense verbs.");
+            if(recs.length < 8) recs.push("Keep a daily journal writing 3 sentences about your day.");
+            if(recs.length < 8) recs.push("Challenge yourself with more complex puzzles in English.");
+            if(recs.length < 8) recs.push("Listen to English podcasts to catch natural speech rhythm.");
+            if(recs.length < 8) recs.push("Try recording yourself retelling a story and listen back.");
+            if(recs.length < 8) recs.push("Keep up the great work and maintain consistent practice!");
+
+            const recsUl = document.getElementById('recommendations-list');
+            recsUl.innerHTML = recs.slice(0,8).map(r => `<li>${r}</li>`).join('');
+
+            // Render Charts
+            renderCharts(p3, p4, p5, p6, p7);
+        }
+
+        function renderCharts(p3, p4, p5, p6, p7) {
+            // Bar Chart
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Verbs (Act3)', 'Writing (Act4)', 'Puzzle (Act5)', 'Reading (Act6)', 'Syntax (Act7)'],
+                    datasets: [{
+                        label: 'Score Percentage (%)',
+                        data: [p3, p4, p5, p6, p7],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: { y: { beginAtZero: true, max: 100 } },
+                    responsive: true,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Pie Chart (Checked vs Unchecked Activities)
+            const checkedCount = sectionChecked.slice(1,8).filter(v => v).length;
+            const uncheckedCount = 7 - checkedCount;
+            
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Missed/Skipped'],
+                    datasets: [{
+                        data: [checkedCount, uncheckedCount],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        // Init on load
+        window.onload = init;
+    </script>
+</body>
+</html>
